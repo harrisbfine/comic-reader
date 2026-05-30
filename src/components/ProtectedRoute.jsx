@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-function getMemberstack() {
-  if (typeof window === "undefined") return null;
-  return window.ms || null;
-}
+import { getMemberstack } from "../lib/memberstack";
 
 export default function ProtectedRoute({ children }) {
   const router = useRouter();

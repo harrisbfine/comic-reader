@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-function getMS() {
-  return typeof window !== "undefined" ? window.ms : null;
-}
+import { getMemberstack } from "../../lib/memberstack";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,7 +16,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const ms = getMS();
+    const ms = getMemberstack();
     if (!ms || typeof ms.login !== "function") {
       setError("Memberstack not available");
       setLoading(false);

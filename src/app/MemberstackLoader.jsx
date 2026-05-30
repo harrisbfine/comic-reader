@@ -14,7 +14,7 @@ export default function MemberstackLoader() {
       id="memberstack-loader"
       src="https://static.memberstack.com/scripts/v2/memberstack.js"
       data-memberstack-id={publicKey}
-      strategy="afterInteractive"
+      strategy="beforeInteractive"
     />
   );
 }

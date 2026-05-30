@@ -3,15 +3,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-function getMS() {
-  return typeof window !== "undefined" ? window.ms : null;
-}
+import { getMemberstack } from "../../lib/memberstack";
 
 export default function LogoutPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const ms = getMS();
+    const ms = getMemberstack();
     if (!ms || typeof ms.logout !== "function") {
       router.replace("/login");
       return;
