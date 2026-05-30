@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { getMemberstack } from "../../lib/memberstack";
+import { waitForMemberstack } from "../../lib/memberstack";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,13 +11,31 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [msReady, setMsReady] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    waitForMemberstack(10000)
+      .then(() => {
+        if (mounted) setMsReady(true);
+      })
+      .catch(() => {
+        if (mounted) setMsReady(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const ms = getMemberstack();
-    if (!ms || typeof ms.login !== "function") {
+
+    let ms;
+    try {
+      ms = await waitForMemberstack();
+    } catch (err) {
       setError("Memberstack not available");
       setLoading(false);
       return;
@@ -51,9 +69,9 @@ export default function LoginPage() {
           type="password"
           required
         />
-        <button disabled={loading} type="submit">
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
+            <button disabled={loading || !msReady} type="submit">
+              {loading ? "Signing in…" : msReady ? "Sign in" : "Waiting for Memberstack…"}
+            </button>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
     </div>
