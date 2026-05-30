@@ -1,6 +1,7 @@
 ﻿import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import MemberstackLoader from "./MemberstackLoader";
+import { MemberstackProvider } from "@memberstack/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,9 +21,15 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col">
         <MemberstackLoader />
-        {children}
+
+        <MemberstackProvider
+          config={{
+            publicKey: process.env.NEXT_PUBLIC_MEMBERSTACK_PUBLIC_KEY,
+          }}
+        >
+          {children}
+        </MemberstackProvider>
       </body>
     </html>
   );
 }
-
