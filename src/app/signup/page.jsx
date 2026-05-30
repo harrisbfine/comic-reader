@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [suggestions, setSuggestions] = useState(null);
   const [msReady, setMsReady] = useState(false);
 
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function SignupPage() {
       router.push("/library");
     } catch (err) {
       setError(err?.message || "Signup failed");
+      setSuggestions(err?.suggestions || null);
     } finally {
       setLoading(false);
     }
@@ -73,6 +75,13 @@ export default function SignupPage() {
           {loading ? "Creating…" : msReady ? "Create account" : "Waiting for Memberstack…"}
         </button>
         {error && <p style={{ color: "red" }}>{error}</p>}
+        {suggestions && (
+          <ul style={{ color: "#b00", marginTop: 8 }}>
+            {suggestions.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ul>
+        )}
       </form>
     </div>
   );
