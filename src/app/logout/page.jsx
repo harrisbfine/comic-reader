@@ -3,24 +3,40 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { getMemberstack } from "../../lib/memberstack";
+import { waitForMemberstack } from "../../lib/memberstack";
 
 export default function LogoutPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const ms = getMemberstack();
-    if (!ms || typeof ms.logout !== "function") {
-      router.replace("/login");
-      return;
+    let mounted = true;
+
+    async function logout() {
+      let ms;
+      try {
+        ms = await waitForMemberstack();
+      } catch (err) {
+        if (mounted) router.replace("/login");
+        return;
+      }
+
+      if (ms && typeof ms.logout === "function") {
+        ms
+          .logout()
+          .catch(() => {})
+          .finally(() => {
+            if (mounted) router.replace("/login");
+          });
+      } else {
+        if (mounted) router.replace("/login");
+      }
     }
 
-    ms
-      .logout()
-      .catch(() => {})
-      .finally(() => {
-        router.replace("/login");
-      });
+    logout();
+
+    return () => {
+      mounted = false;
+    };
   }, [router]);
 
   return (
