@@ -13,14 +13,14 @@ function isMemberstackReady(ms) {
 
 export function getMemberstack() {
   if (typeof window === "undefined") return null;
-  return (
+  const raw =
     window.ms ||
     window.memberstack ||
     window.MemberStack ||
     window.$memberstackDom ||
     window.MemberstackPrebuiltUI ||
-    null
-  );
+    null;
+  return normalizeMemberstack(raw);
 }
 
 function normalizeMemberstack(raw) {
