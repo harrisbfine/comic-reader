@@ -1,35 +1,42 @@
 "use client";
 
-import { useEffect } from "react";
-import { useActionState } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signupUserAction } from "@/app/signup/actions";
-import { DEFAULT_LOGIN_URL } from "@/app/auth/utils/enums";
 
 export default function SignupPage() {
   const router = useRouter();
-  const [state, formAction, pending] = useActionState(signupUserAction, {
-    errorMessage: "",
-    success: false,
-  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (state?.success) {
-      router.replace(DEFAULT_LOGIN_URL);
+  async function handleSignup(event) {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const email = event.target.email.value.trim();
+    const password = event.target.password.value;
+
+    try {
+      const ms = window.Memberstack;
+      if (!ms || typeof ms.signup !== "function") {
+        throw new Error("Memberstack is not loaded yet.");
+      }
+
+      await ms.signup({ email, password });
+      router.replace("/login");
+    } catch (err) {
+      setError(err?.message || "Signup failed");
+    } finally {
+      setLoading(false);
     }
-  }, [state?.success, router]);
+  }
 
   return (
     <div style={{ padding: 24 }}>
       <h1>Sign up</h1>
-      <form action={formAction} method="post" style={{ display: "grid", gap: 8 }}>
-        <input
-          name="email"
-          placeholder="Email"
-          type="email"
-          required
-        />
+      <form onSubmit={handleSignup} style={{ display: "grid", gap: 8 }}>
+        <input name="email" placeholder="Email" type="email" required />
         <input
           name="password"
           placeholder="Password"
@@ -37,10 +44,10 @@ export default function SignupPage() {
           minLength={8}
           required
         />
-        <button disabled={pending} type="submit">
-          {pending ? "Signing up…" : "Create account"}
+        <button disabled={loading} type="submit">
+          {loading ? "Signing up…" : "Create account"}
         </button>
-        {state?.errorMessage && <p style={{ color: "red" }}>{state.errorMessage}</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
       <p style={{ marginTop: 16 }}>
         Already have an account? <Link href="/login">Log in</Link>.
