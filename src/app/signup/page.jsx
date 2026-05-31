@@ -1,88 +1,50 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useActionState } from "next/navigation";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-import { waitForMemberstack } from "../../lib/memberstack";
+import { signupUserAction } from "@/app/signup/actions";
+import { DEFAULT_LOGIN_URL } from "@/app/auth/utils/enums";
 
 export default function SignupPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [suggestions, setSuggestions] = useState(null);
-  const [msReady, setMsReady] = useState(false);
+  const [state, formAction, pending] = useActionState(signupUserAction, {
+    errorMessage: "",
+    success: false,
+  });
 
   useEffect(() => {
-    let mounted = true;
-    waitForMemberstack(10000)
-      .then(() => {
-        if (mounted) setMsReady(true);
-      })
-      .catch(() => {
-        if (mounted) setMsReady(false);
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    let ms;
-    try {
-      ms = await waitForMemberstack();
-    } catch (err) {
-      setError("Memberstack not available");
-      setLoading(false);
-      return;
+    if (state?.success) {
+      router.replace(DEFAULT_LOGIN_URL);
     }
-
-    try {
-      await ms.signup({ email, password });
-      router.push("/library");
-    } catch (err) {
-      setError(err?.message || "Signup failed");
-      setSuggestions(err?.suggestions || null);
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, [state?.success, router]);
 
   return (
     <div style={{ padding: 24 }}>
       <h1>Sign up</h1>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 8 }}>
+      <form action={formAction} method="post" style={{ display: "grid", gap: 8 }}>
         <input
+          name="email"
           placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           type="email"
           required
         />
         <input
+          name="password"
           placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           type="password"
+          minLength={8}
           required
         />
-        <button disabled={loading || !msReady} type="submit">
-          {loading ? "Creating…" : msReady ? "Create account" : "Waiting for Memberstack…"}
+        <button disabled={pending} type="submit">
+          {pending ? "Signing up…" : "Create account"}
         </button>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {suggestions && (
-          <ul style={{ color: "#b00", marginTop: 8 }}>
-            {suggestions.map((s, i) => (
-              <li key={i}>{s}</li>
-            ))}
-          </ul>
-        )}
+        {state?.errorMessage && <p style={{ color: "red" }}>{state.errorMessage}</p>}
       </form>
+      <p style={{ marginTop: 16 }}>
+        Already have an account? <Link href="/login">Log in</Link>.
+      </p>
     </div>
   );
 }

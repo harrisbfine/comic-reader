@@ -36,7 +36,13 @@ function normalizeMemberstack(raw) {
   if (typeof raw.login === "function") {
     client.login = (...args) => raw.login(...args);
   } else if (typeof raw.loginMemberEmailPassword === "function") {
-    client.login = ({ email, password }) => raw.loginMemberEmailPassword(email, password);
+    client.login = ({ email, password }) => {
+      try {
+        return raw.loginMemberEmailPassword({ email, password });
+      } catch (err) {
+        return raw.loginMemberEmailPassword(email, password);
+      }
+    };
   } else if (typeof raw.loginMemberPasswordless === "function") {
     client.login = (...args) => raw.loginMemberPasswordless(...args);
   }
@@ -44,7 +50,13 @@ function normalizeMemberstack(raw) {
   if (typeof raw.signup === "function") {
     client.signup = (...args) => raw.signup(...args);
   } else if (typeof raw.signupMemberEmailPassword === "function") {
-    client.signup = ({ email, password }) => raw.signupMemberEmailPassword(email, password);
+    client.signup = ({ email, password }) => {
+      try {
+        return raw.signupMemberEmailPassword({ email, password });
+      } catch (err) {
+        return raw.signupMemberEmailPassword(email, password);
+      }
+    };
   } else if (typeof raw.signupMemberPasswordless === "function") {
     client.signup = (...args) => raw.signupMemberPasswordless(...args);
   }

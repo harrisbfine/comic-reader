@@ -1,0 +1,2 @@
+origin	https://github.com/harrisbfine/comic-reader.git (fetch)
+origin	https://github.com/harrisbfine/comic-reader.git (push)

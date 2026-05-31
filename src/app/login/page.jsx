@@ -1,49 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-import { waitForMemberstack } from "../../lib/memberstack";
+import { useMemberstack } from "@memberstack/react";
+import { DEFAULT_LOGIN_URL } from "@/app/auth/utils/enums";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [msReady, setMsReady] = useState(false);
+  const [error, setError] = useState("");
+  const { loginMemberEmailPassword } = useMemberstack();
 
-  useEffect(() => {
-    let mounted = true;
-    waitForMemberstack(10000)
-      .then(() => {
-        if (mounted) setMsReady(true);
-      })
-      .catch(() => {
-        if (mounted) setMsReady(false);
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError(null);
+  async function handleSubmit(event) {
+    event.preventDefault();
     setLoading(true);
-
-    let ms;
-    try {
-      ms = await waitForMemberstack();
-    } catch (err) {
-      setError("Memberstack not available");
-      setLoading(false);
-      return;
-    }
+    setError("");
 
     try {
-      await ms.login({ email, password });
-      router.push("/library");
+      await loginMemberEmailPassword({ email, password });
+      router.replace(DEFAULT_LOGIN_URL);
     } catch (err) {
       setError(err?.message || "Login failed");
     } finally {
@@ -59,6 +37,7 @@ export default function LoginPage() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          name="email"
           type="email"
           required
         />
@@ -66,14 +45,18 @@ export default function LoginPage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          name="password"
           type="password"
           required
         />
-            <button disabled={loading || !msReady} type="submit">
-              {loading ? "Signing in…" : msReady ? "Sign in" : "Waiting for Memberstack…"}
-            </button>
+        <button disabled={loading} type="submit">
+          {loading ? "Signing in…" : "Sign in"}
+        </button>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
+      <p style={{ marginTop: 16 }}>
+        Don&apos;t have an account? <Link href="/signup">Sign up</Link>.
+      </p>
     </div>
   );
 }

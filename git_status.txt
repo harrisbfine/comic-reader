@@ -1,0 +1,11 @@
+ M src/app/layout.js
+ M src/app/login/page.jsx
+ M src/app/logout/page.jsx
+ M src/app/signup/page.jsx
+ M src/lib/memberstack.js
+?? git_status.txt
+?? src/app/auth/
+?? src/app/signup/actions.js
+?? src/lib/authService.js
+?? src/middleware.ts
+?? terminal_test2.txt

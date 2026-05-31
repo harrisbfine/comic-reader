@@ -1,0 +1,7 @@
+error: pathspec 'Integrate' did not match any file(s) known to git
+error: pathspec 'Memberstack' did not match any file(s) known to git
+error: pathspec 'auth' did not match any file(s) known to git
+error: pathspec 'flow' did not match any file(s) known to git
+error: pathspec 'and' did not match any file(s) known to git
+error: pathspec 'protected' did not match any file(s) known to git
+error: pathspec 'routes\ ; git push origin main ' did not match any file(s) known to git
